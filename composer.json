@@ -1,6 +1,7 @@
 {
     "name": "losthost/background-process",
     "description": "Lightweight and secure PHP library for running code in background processes",
+    "license": "MIT",
     "authors": [
         {
             "name": "drweb",
