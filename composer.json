@@ -1,0 +1,18 @@
+{
+    "name": "losthost/background-process",
+    "description": "Lightweight and secure PHP library for running code in background processes",
+    "authors": [
+        {
+            "name": "drweb",
+            "email": "pio@pio.su"
+        }
+    ],
+    "require-dev": {
+        "phpunit/phpunit": "11.5.44"
+    },
+    "autoload": {
+        "psr-4": {
+            "losthost\\BackgroundProcess\\": "src/"
+        }
+    }
+}
