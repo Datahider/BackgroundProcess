@@ -9,7 +9,9 @@ class BackgroundProcess {
 
     protected array $pipes = [];
     protected string $php_template;
-    
+    protected int $exit_code;
+
+
     public function __construct(string $php_template) {
         $this->php_template = $php_template;
     }
@@ -43,8 +45,11 @@ class BackgroundProcess {
         
     public function kill(): bool {
         if (isset($this->process)) {
-            $terminated = proc_terminate($this->process);
-            if ($terminated) {
+            $pid = $this->getPid();
+            $ok = stripos(php_uname('s'), 'win')>-1  
+                    ? exec("taskkill /F /T /PID $pid") 
+                    : exec("kill -9 $pid");
+            if ($ok !== false && !$this->isRunning()) {
                 $this->process = null;
                 return true;
             }

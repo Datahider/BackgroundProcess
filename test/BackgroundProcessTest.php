@@ -114,8 +114,8 @@ class BackgroundProcessTest extends TestCase {
         // Проверяем что процесс действительно умер
         sleep(1);
         
-        $is_running = $process->isRunning();
         $this->expectException(\RuntimeException::class);
+        $process->isRunning();
     }
     
     
