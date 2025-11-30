@@ -4,6 +4,10 @@ namespace losthost\BackgroundProcess;
 
 class BackgroundProcess {
 
+    /** @var resource|null */
+    protected $process;
+
+    protected array $pipes = [];
     protected string $php_template;
     
     public function __construct(string $php_template) {
@@ -14,7 +18,7 @@ class BackgroundProcess {
         return new static($php_template);
     }
     
-    public function run(...$params) : void {
+    public function run(...$params) : static {
         $escaped_params = array_map(fn($p) => var_export($p, true), $params);
         $code = sprintf($this->php_template, ...$escaped_params);
 
@@ -26,12 +30,48 @@ class BackgroundProcess {
         $php = '"' . PHP_BINARY . '"';
         $process = proc_open($php, $descriptorspec, $pipes);
         
-        if (is_resource($process)) {
-            if (!isset($pipes[0])) {
-                throw new \RuntimeException('Failed to create stdin pipe');
-            }
+        if (is_resource($process) && isset($pipes[0])) {
             fwrite($pipes[0], $code);
             fclose($pipes[0]);
+            $this->pipes = $pipes;
+            $this->process = $process;
+            return $this;
         }
+
+        throw new \RuntimeException('Failed to create stdin pipe');
     }
+        
+    public function kill(): bool {
+        if (isset($this->process)) {
+            $terminated = proc_terminate($this->process);
+            if ($terminated) {
+                $this->process = null;
+                return true;
+            }
+        }
+        throw \RuntimeException("Can't teminate the process.");
+    }
+
+    public function isRunning(): bool {
+        if (!is_resource($this->process)) {
+            throw new \RuntimeException('The process is already terminated or was never starded.');
+        }
+
+        $status = proc_get_status($this->process);
+        return $status['running'];
+    }
+
+    public function getPid(): ?int {
+        if (!is_resource($this->process)) {
+            throw new \RuntimeException('The process is already terminated or was never starded.');
+        }
+
+        $status = proc_get_status($this->process);
+        return $status['pid'] ?? null;
+    }
+    
+    public function readOutput(): string {
+        return stream_get_contents($this->pipes[1] ?? null);
+    }
+        
 }

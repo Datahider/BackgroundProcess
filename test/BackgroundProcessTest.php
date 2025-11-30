@@ -93,6 +93,31 @@ class BackgroundProcessTest extends TestCase {
         $this->assertEquals('But this works', file_get_contents($this->test_file));
     }
     
+    public function testKill(): void {
+        $code = <<<'PHP'
+            <?php
+            while (true) {
+                error_log("Background process running at " . date('H:i:s'));
+                sleep(1);
+            }
+            PHP;
+
+        $process = new BackgroundProcess($code);
+        $process->run();
+
+        // Даём процессу немного поработать
+        sleep(3);
+
+        // Убиваем
+        $this->assertTrue($process->kill());
+
+        // Проверяем что процесс действительно умер
+        sleep(1);
+        
+        $is_running = $process->isRunning();
+        $this->expectException(\RuntimeException::class);
+    }
+    
     
     protected function tearDown(): void {
         if (file_exists($this->test_file)) {
