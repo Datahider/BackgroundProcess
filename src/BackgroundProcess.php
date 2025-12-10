@@ -46,10 +46,12 @@ class BackgroundProcess {
     public function kill(): bool {
         if (isset($this->process)) {
             $pid = $this->getPid();
+            DEBUG && error_log("Killing pid $pid");
             $ok = stripos(php_uname('s'), 'win')>-1  
                     ? exec("taskkill /F /T /PID $pid") 
                     : exec("kill -9 $pid");
             if ($ok !== false && !$this->isRunning()) {
+                DEBUG && error_log("Killed pid $pid");
                 $this->process = null;
                 return true;
             }
