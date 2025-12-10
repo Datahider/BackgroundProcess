@@ -16,7 +16,7 @@ class BackgroundProcess {
     public function __construct(string $php_template) {
         $this->php_template = $php_template;
         $this->uniqid = uniqid();
-        DEBUG && error_log("BackgroundProcess $this->uniqid: Created with template:\n\n$php_template\n\nStack trace:\n\n". debug_backtrace());
+        DEBUG && error_log("BackgroundProcess $this->uniqid: Created with template:\n\n$php_template\n\nStack trace:\n\n". print_r(debug_backtrace(), true));
     }
     
     static public function create(string $php_template) : static {
