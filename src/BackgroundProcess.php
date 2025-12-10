@@ -48,10 +48,15 @@ class BackgroundProcess {
     public function kill(): bool {
         if (isset($this->process)) {
             $pid = $this->getPid();
-            $ok = stripos(php_uname('s'), 'win')>-1  
-                    ? exec("taskkill /F /T /PID $pid") 
-                    : exec("pkill -KILL -P $pid && kill -KILL $pid");
-            if ($ok !== false && !$this->isRunning()) {
+            if (stripos(php_uname('s'), 'win')>-1) {
+                $ok = exec("taskkill /F /T /PID $pid");
+            } else {
+                $ok = exec("pkill -KILL -P $pid");
+                $this->clean();
+            }
+
+            if ($ok !== false) {
+                $this->wait();
                 $this->process = null;
                 return true;
             }
@@ -59,6 +64,23 @@ class BackgroundProcess {
         throw new \RuntimeException("Can't teminate the process.");
     }
 
+    protected function wait() {
+        $wait = 3;
+        while ($this->isRunning()) {
+            if ($wait-- == 0) {
+                throw new \RuntimeException("Killed process is still running!");
+            }
+            sleep(1);
+        }
+    }
+    
+    protected function clean() {
+        $status = null;
+        while (pcntl_waitpid(-1, $status, WNOHANG) > 0) {
+            // просто чистим
+        }                
+    }
+    
     public function isRunning(): bool {
         if (!is_resource($this->process)) {
             throw new \RuntimeException('The process is already terminated or was never starded.');
