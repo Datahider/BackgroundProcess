@@ -6,6 +6,7 @@ class BackgroundProcess {
 
     /** @var resource|null */
     protected $process;
+    protected $uniqid;
 
     protected array $pipes = [];
     protected string $php_template;
@@ -14,6 +15,8 @@ class BackgroundProcess {
 
     public function __construct(string $php_template) {
         $this->php_template = $php_template;
+        $this->uniqid = uniqid();
+        DEBUG && error_log("BackgroundProcess $this->uniqid: Created with template:\n\n$php_template");
     }
     
     static public function create(string $php_template) : static {
@@ -22,6 +25,7 @@ class BackgroundProcess {
     
     public function run(...$params) : static {
         $escaped_params = array_map(fn($p) => var_export($p, true), $params);
+        DEBUG && error_log("BackgroundProcess $this->uniqid: Started with params:\n\n". print_r($escaped_params, true));
         $code = sprintf($this->php_template, ...$escaped_params);
 
         $descriptorspec = [
@@ -46,12 +50,12 @@ class BackgroundProcess {
     public function kill(): bool {
         if (isset($this->process)) {
             $pid = $this->getPid();
-            DEBUG && error_log("Killing pid $pid");
+            DEBUG && error_log("BackgroundProcess $this->uniqid: Killing pid $pid");
             $ok = stripos(php_uname('s'), 'win')>-1  
                     ? exec("taskkill /F /T /PID $pid") 
                     : exec("kill -9 $pid");
             if ($ok !== false && !$this->isRunning()) {
-                DEBUG && error_log("Killed pid $pid");
+                DEBUG && error_log("BackgroundProcess $this->uniqid: Killed pid $pid");
                 $this->process = null;
                 return true;
             }
