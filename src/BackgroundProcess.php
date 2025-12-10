@@ -52,11 +52,11 @@ class BackgroundProcess {
                 $ok = exec("taskkill /F /T /PID $pid");
             } else {
                 $ok = exec("pkill -KILL -P $pid");
-                $this->clean();
             }
 
             if ($ok !== false) {
                 $this->wait();
+                proc_close($this->process);
                 $this->process = null;
                 return true;
             }
@@ -72,13 +72,6 @@ class BackgroundProcess {
             }
             sleep(1);
         }
-    }
-    
-    protected function clean() {
-        $status = null;
-        while (pcntl_waitpid(-1, $status, WNOHANG) > 0) {
-            // просто чистим
-        }                
     }
     
     public function isRunning(): bool {
