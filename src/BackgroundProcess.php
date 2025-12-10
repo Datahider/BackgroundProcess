@@ -54,7 +54,7 @@ class BackgroundProcess {
                 return true;
             }
         }
-        throw \RuntimeException("Can't teminate the process.");
+        throw new \RuntimeException("Can't teminate the process.");
     }
 
     public function isRunning(): bool {
