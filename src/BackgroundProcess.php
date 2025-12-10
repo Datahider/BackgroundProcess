@@ -70,7 +70,7 @@ class BackgroundProcess {
             if ($wait-- == 0) {
                 throw new \RuntimeException("Killed process is still running!");
             }
-            sleep(1);
+            usleep(100000);;
         }
     }
     
