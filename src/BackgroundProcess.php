@@ -50,7 +50,7 @@ class BackgroundProcess {
             $pid = $this->getPid();
             $ok = stripos(php_uname('s'), 'win')>-1  
                     ? exec("taskkill /F /T /PID $pid") 
-                    : exec("kill -9 -$pid");
+                    : exec("pkill -9 $pid");
             if ($ok !== false && !$this->isRunning()) {
                 $this->process = null;
                 return true;
