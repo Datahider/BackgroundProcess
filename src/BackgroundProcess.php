@@ -51,7 +51,8 @@ class BackgroundProcess {
             if (stripos(php_uname('s'), 'win')>-1) {
                 $ok = exec("taskkill /F /T /PID $pid");
             } else {
-                $ok = exec("pkill -KILL -P $pid");
+                // proc_terminate не работает (убивает шелл, но php продолжает работать)
+                $ok = exec("pkill -KILL -P $pid"); 
             }
 
             if ($ok !== false) {
