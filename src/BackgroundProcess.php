@@ -52,7 +52,7 @@ class BackgroundProcess {
                 $ok = exec("taskkill /F /T /PID $pid");
             } else {
                 // proc_terminate не работает (убивает шелл, но php продолжает работать)
-                $ok = exec("pkill -KILL -P $pid"); 
+                $ok = exec("pkill -TERM -P $pid"); 
             }
 
             if ($ok !== false) {
