@@ -51,7 +51,7 @@ class BackgroundProcess {
             if (stripos(php_uname('s'), 'win')>-1) {
                 $ok = exec("taskkill /F /T /PID $pid");
             } else {
-                $ok = exec("pkill -KILL -P $pid");
+                $ok = proc_terminate($this->process);
             }
 
             if ($ok !== false) {
